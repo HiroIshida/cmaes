@@ -63,6 +63,7 @@ class CMA:
         self,
         mean: np.ndarray,
         sigma: float,
+        cov: Optional[np.ndarray] = None,
         bounds: Optional[np.ndarray] = None,
         n_max_resampling: int = 100,
         seed: Optional[int] = None,
@@ -155,7 +156,11 @@ class CMA:
         self._pc = np.zeros(n_dim)
 
         self._mean = mean
-        self._C = np.eye(n_dim)
+        if cov is None:
+            self._C = np.eye(n_dim)
+        else:
+            self._C = cov
+
         self._sigma = sigma
         self._D: Optional[np.ndarray] = None
         self._B: Optional[np.ndarray] = None
