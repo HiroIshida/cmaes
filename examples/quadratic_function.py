@@ -14,7 +14,7 @@ def main():
     while True:
         solutions = []
         for _ in range(optimizer.population_size):
-            x = optimizer.ask()
+            x = optimizer.ask(inball=True)
             value = quadratic(x[0], x[1])
             solutions.append((x, value))
             print(
