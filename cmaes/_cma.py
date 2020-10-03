@@ -64,6 +64,7 @@ class CMA:
         mean: np.ndarray,
         sigma: float,
         cov: Optional[np.ndarray] = None,
+        cm: Optional[float] = None,
         bounds: Optional[np.ndarray] = None,
         n_max_resampling: int = 100,
         seed: Optional[int] = None,
@@ -119,7 +120,6 @@ class CMA:
             1 / positive_sum * weights_prime,
             min_alpha / negative_sum * weights_prime,
         )
-        cm = 1  # (eq. 54)
 
         # learning rate for the cumulation for the step-size control (eq.55)
         c_sigma = (mu_eff + 2) / (n_dim + mu_eff + 5)
@@ -142,7 +142,10 @@ class CMA:
         self._cmu = cmu
         self._c_sigma = c_sigma
         self._d_sigma = d_sigma
-        self._cm = cm
+        if cm is None:
+            self._cm = 1 # (eq. 54)
+        else:
+            self._cm = cm
 
         # E||N(0, I)|| (p.28)
         self._chi_n = math.sqrt(self._n_dim) * (

@@ -8,7 +8,7 @@ def quadratic(x1, x2):
 
 def main():
     cov = np.eye(2)*0.01
-    optimizer = CMA(mean=np.zeros(2), sigma=1.3, cov=cov)
+    optimizer = CMA(mean=np.zeros(2), sigma=1.3, cov=cov, cm=0.5)
     while True:
         solutions = []
         X = optimizer.ask_all(inball=True)
