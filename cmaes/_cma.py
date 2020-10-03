@@ -225,13 +225,13 @@ class CMA:
         ), "bounds should be (n_dim, 2)-dim matrix"
         self._bounds = bounds
 
-    def ask(self) -> np.ndarray:
+    def ask(self, inball=False) -> np.ndarray:
         """Sample a parameter"""
         for i in range(self._n_max_resampling):
-            x = self._sample_solution()
+            x = self._sample_solution(inball=inball)
             if self._is_feasible(x):
                 return x
-        x = self._sample_solution()
+        x = self._sample_solution(inball=inball)
         x = self._repair_infeasible_params(x)
         return x
 
@@ -247,9 +247,14 @@ class CMA:
         self._B, self._D = B, D
         return B, D
 
-    def _sample_solution(self) -> np.ndarray:
+    def _sample_solution(self, inball=False) -> np.ndarray:
         B, D = self._eigen_decomposition()
-        z = self._rng.randn(self._n_dim)  # ~ N(0, I)
+        if inball:
+            # note that B is not unit ball. Radius is set to sqrt(dim + 2)  
+            z = sample_from_inball(self._n_dim) # ~ B 
+        else:
+            z = self._rng.randn(self._n_dim)  # ~ N(0, I)
+
         y = B.dot(np.diag(D)).dot(z)  # ~ N(0, C)
         x = self._mean + self._sigma * y  # ~ N(m, σ^2 C)
         return x
@@ -409,3 +414,26 @@ def _decompress_symmetric(sym1d: np.ndarray) -> np.ndarray:
     out[R, C] = sym1d
     out[C, R] = sym1d
     return out
+
+def generate_random_inball(dim, N): 
+    """
+    this functio generate a random samples inside a hyper-ellipsoid specified by a length vector r of eigen axes. For example, in case of (x/2)^2 + (y/3)^2 = 1, r is r=np.array([2., 3.]).
+
+    Generating a random sample uniformely inside a high dimensional ball is done by
+
+    Barthe, Franck, et al. "A probabilistic approach to the geometry of the $l_{p}^n$-ball." The Annals of Probability 33.2 (2005): 480-513.
+
+
+    http://mathworld.wolfram.com/BallPointPicking.html
+    is wrong. lambda must be 0.5, which means we must set scale in numpy.random.exponetial to be 2.0
+    
+    """
+    y = np.random.exponential(scale=2.0, size=(N))
+    X = np.random.randn(dim, N)
+    denom = math.sqrt(np.sum(X**2, axis=0)+y)
+    rands_ = X/np.tile(denom, (dim, 1))
+    scale = math.sqrt(dim + 2)
+    return rands_.T * scale
+
+def sample_from_inball(dim):
+    return generate_random_inball(dim, 1).flatten()
