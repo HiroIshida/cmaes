@@ -96,6 +96,7 @@ class CMA:
         # learning rate for the rank-one update
         alpha_cov = 2
         c1 = alpha_cov / ((n_dim + 1.3) ** 2 + mu_eff)
+
         # learning rate for the rank-μ update
         cmu = min(
             1 - c1 - 1e-8,  # 1e-8 is for large popsize.
@@ -214,7 +215,7 @@ class CMA:
         return self._mean
 
     def cov(self) -> np.ndarray:
-        return self._C
+        return self._C * self._sigma ** 2
 
     @property
     def dim(self) -> int:
