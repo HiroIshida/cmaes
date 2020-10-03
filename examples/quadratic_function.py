@@ -7,21 +7,14 @@ def quadratic(x1, x2):
 
 
 def main():
-    optimizer = CMA(mean=np.zeros(2), sigma=1.3)
-    print(" g    f(x1,x2)     x1      x2  ")
-    print("===  ==========  ======  ======")
-
+    cov = np.eye(2)*0.01
+    optimizer = CMA(mean=np.zeros(2), sigma=1.3, cov=cov)
     while True:
         solutions = []
-        for _ in range(optimizer.population_size):
-            x = optimizer.ask(inball=True)
-            value = quadratic(x[0], x[1])
-            solutions.append((x, value))
-            print(
-                f"{optimizer.generation:3d}  {value:10.5f}"
-                f"  {x[0]:6.2f}  {x[1]:6.2f}"
-            )
-        optimizer.tell(solutions)
+        X = optimizer.ask_all(inball=True)
+        values = quadratic(X[:, 0], X[:, 1]).tolist()
+        optimizer.tell(list(zip(X, values)))
+        print(optimizer._mean)
 
         if optimizer.should_stop():
             break

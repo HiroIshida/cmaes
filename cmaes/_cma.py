@@ -240,6 +240,11 @@ class CMA:
         x = self._repair_infeasible_params(x)
         return x
 
+    def ask_all(self, inball=False) -> np.ndarray:
+        """Sample all population"""
+        X = np.vstack([self.ask(inball=inball) for i in range(self.population_size)])
+        return X
+
     def _eigen_decomposition(self) -> Tuple[np.ndarray, np.ndarray]:
         if self._B is not None and self._D is not None:
             return self._B, self._D
