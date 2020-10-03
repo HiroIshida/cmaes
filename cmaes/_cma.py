@@ -210,6 +210,12 @@ class CMA:
         # Set _rng for unpickled object.
         setattr(self, "_rng", np.random.RandomState())
 
+    def mean(self) -> np.ndarray:
+        return self._mean
+
+    def cov(self) -> np.ndarray:
+        return self._C
+
     @property
     def dim(self) -> int:
         """A number of dimensions"""
